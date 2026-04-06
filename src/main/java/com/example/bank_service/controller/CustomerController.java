@@ -19,14 +19,12 @@ public class CustomerController {
     private final CustomerService customerService;
 
     //Lấy thông tin chi tiết hồ sơ qua Public ID
-    // GET http://localhost:8080/api/customers/profile/{publicId}
     @GetMapping("/profile/{publicId}")
     public ResponseEntity<CustomerResponseDTO> getProfile(@PathVariable UUID publicId) {
         return ResponseEntity.ok(customerService.getProfile(publicId));
     }
 
     //Cập nhật thông tin KH
-    //PUT http://localhost:8080/api/customers/update/{publicId}
     @PutMapping("/update/{publicId}")
     public ResponseEntity<CustomerResponseDTO> updateProfile(
             @PathVariable UUID publicId,
@@ -34,8 +32,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.updateProfile(publicId, updateDTO));
     }
 
-    //Lấy danh sách tất cả KH (Dành cho Admin)
-    //GET http://localhost:8080/api/customers/all
+    //Lấy danh sách tất cả KH (Admin)
     @GetMapping("/all")
     public ResponseEntity<List<CustomersSummaryDTO>> getAllCustomers() {
         return ResponseEntity.ok(customerService.getAllCustomers());

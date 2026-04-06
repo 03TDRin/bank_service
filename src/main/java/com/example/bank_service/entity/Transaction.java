@@ -16,7 +16,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private UUID transactionId = UUID.randomUUID(); // Mã giao dịch duy nhất
+    private UUID transactionId = UUID.randomUUID();
 
     @Enumerated(EnumType.STRING)
     private TransactionType type; // DEPOSIT, WITHDRAW, TRANSFER
@@ -30,5 +30,5 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "account_id")
-    private Account account; // Giao dịch này thuộc tài khoản nào
+    private Account account;
 }

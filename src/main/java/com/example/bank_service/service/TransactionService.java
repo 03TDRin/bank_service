@@ -7,9 +7,9 @@ import com.example.bank_service.enums.TransactionType;
 import java.util.List;
 
 public interface TransactionService {
-    // Hàm này để các Service khác gọi vào để lưu lịch sử
+    //Các Service khác gọi vào để lưu ls
     void recordTransaction(Account account, Double amount, TransactionType type, String desc);
 
-    // Lấy lịch sử giao dịch của 1 số tài khoản
+    //Lấy ls giao dịch của 1 số tài khoản
     List<TransactionResponseDTO> getHistory(String accountNumber);
 }

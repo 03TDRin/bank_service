@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class CustomerSearchDTO {
-    private String keyword; // Tìm theo tên, email hoặc số điện thoại
+    private String keyword;
     private CustomerType type;
 }

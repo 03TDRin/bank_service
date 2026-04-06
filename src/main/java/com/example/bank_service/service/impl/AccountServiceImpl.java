@@ -38,7 +38,6 @@ public class AccountServiceImpl implements AccountService {
 
         Account saved = accountRepository.save(account);
 
-        // Nếu ban đầu có tiền, cũng nên ghi nhận một giao dịch nạp tiền đầu kỳ
         if (dto.getInitialBalance() > 0) {
             transactionService.recordTransaction(saved, dto.getInitialBalance(),
                     TransactionType.DEPOSIT, "Số dư khởi tạo tài khoản");
@@ -82,11 +81,11 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(from);
         accountRepository.save(to);
 
-        //Lưu lịch sử cho người gửi
+        //Lưu lsử cho người gửi
         transactionService.recordTransaction(from, amount,
                 TransactionType.TRANSFER, "Chuyển tiền đến số tài khoản: " + toAccountNo);
 
-        //Lưu lịch sử cho người nhận
+        //Lưu lsử cho người nhận
         transactionService.recordTransaction(to, amount,
                 TransactionType.DEPOSIT, "Nhận tiền từ số tài khoản: " + fromAccountNo);
     }
