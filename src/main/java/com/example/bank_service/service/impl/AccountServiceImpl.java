@@ -23,8 +23,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
-    private final TransactionService transactionService; // Inject thêm để lưu lịch sử
-
+    private final TransactionService transactionService;
     @Override
     @Transactional
     public AccountResponseDTO createAccount(AccountCreateDTO dto) {
