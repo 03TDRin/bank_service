@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface AccountStatusHistoryRepository extends JpaRepository<AccountStatusHistory, Long> {
     List<AccountStatusHistory> findAllByAccountIdOrderByChangedAtDesc(Long accountId);
+    List<AccountStatusHistory> findByAccount_AccountNumber(String accountNumber);
+
 }

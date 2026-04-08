@@ -2,6 +2,7 @@ package com.example.bank_service.controller;
 
 import com.example.bank_service.dto.account.*;
 import com.example.bank_service.service.AccountService;
+import com.example.bank_service.service.AccountStatusHistoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AccountStatusHistoryService statusHistoryService;
 
     //Tạo tk mới (Dành cho Admin hoặc User đăng ký thêm)
     @PostMapping("/create")
@@ -67,7 +69,14 @@ public class AccountController {
 
     //Admin tra cứu tài khoản kèm thông tin người dùng
     @GetMapping("/search")
-    public ResponseEntity<List<AccountUserSearchDTO>> searchAccounts(@RequestParam String keyword) {
-        return ResponseEntity.ok(accountService.searchAccounts(keyword));
+    public ResponseEntity<List<AccountUserSearchDTO>> searchAccounts(AccountSearchDTO dto) {
+        return ResponseEntity.ok(accountService.searchAccounts(dto));
     }
+
+    @GetMapping("/{accountNumber}/status-history")
+    public ResponseEntity<List<AccountStatusHistoryDTO>> getStatusHistory(
+            @PathVariable String accountNumber) {
+        return ResponseEntity.ok(statusHistoryService.getByAccountNumber(accountNumber));
+    }
+
 }

@@ -15,4 +15,6 @@ public interface AccountService {
     void updateLimit(String accountNumber, AccountUpdateLimitDTO dto);
     ReceiverDTO getReceiverInfo(String accountNumber);
     List<AccountUserSearchDTO> searchAccounts(AccountSearchDTO dto);
+
+    List<AccountUserSearchDTO> searchAccounts(String keyword);
 }

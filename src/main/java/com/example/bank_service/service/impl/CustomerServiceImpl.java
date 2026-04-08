@@ -40,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setType(dto.getType());
         customer.setUser(user);
 
-        //Tạo 1 tài khoản mặc định
+        //Tạo 1 tk mặc định
         Account defaultAccount = new Account();
         defaultAccount.setAccountNumber(UUID.randomUUID().toString().substring(0, 8));
         defaultAccount.setBalance(0.0);

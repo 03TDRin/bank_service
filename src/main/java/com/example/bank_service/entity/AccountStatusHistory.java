@@ -16,7 +16,7 @@ public class AccountStatusHistory {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private AccountStatus status; // PENDING, ACTIVE, BLOCKED, CLOSED
+    private AccountStatus status;
 
     private String reason;
 
@@ -26,4 +26,8 @@ public class AccountStatusHistory {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
 }

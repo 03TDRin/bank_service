@@ -1,5 +1,6 @@
 package com.example.bank_service.service.impl;
 
+import com.example.bank_service.service.AccountService;
 import com.example.bank_service.dto.account.*;
 import com.example.bank_service.entity.Account;
 import com.example.bank_service.entity.Customer;
@@ -7,7 +8,6 @@ import com.example.bank_service.enums.AccountStatus;
 import com.example.bank_service.enums.TransactionType;
 import com.example.bank_service.repository.AccountRepository;
 import com.example.bank_service.repository.CustomerRepository;
-import com.example.bank_service.service.AccountService;
 import com.example.bank_service.service.AccountStatusHistoryService;
 import com.example.bank_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -130,6 +130,11 @@ public class AccountServiceImpl implements AccountService {
         dto.setAccountNumber(account.getAccountNumber());
         dto.setFullName(account.getCustomer().getFirstName() + " " + account.getCustomer().getLastName());
         return dto;
+    }
+
+    @Override
+    public List<AccountUserSearchDTO> searchAccounts(AccountSearchDTO dto) {
+        return List.of();
     }
 
     @Override
