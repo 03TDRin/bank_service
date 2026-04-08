@@ -12,4 +12,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     // Tìm tất cả giao dịch của một tài khoản và sắp xếp cái mới nhất lên đầu
     List<Transaction> findByAccountOrderByTransactionDateDesc(Account account);
+
+    //Lấy giao dịch vừa thực hiện xong
+    Transaction findFirstByAccountOrderByTransactionDateDesc(Account account);
 }

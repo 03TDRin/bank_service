@@ -19,7 +19,7 @@ public class Transaction {
     private UUID transactionId = UUID.randomUUID();
 
     @Enumerated(EnumType.STRING)
-    private TransactionType type; // DEPOSIT, WITHDRAW, TRANSFER
+    private TransactionType type;
 
     private Double amount;
 

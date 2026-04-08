@@ -9,6 +9,8 @@ import java.util.UUID;
 public class TransactionResponseDTO {
     private UUID transactionId;
     private TransactionType type;
+    private String accountNumber;
+    private String receiverNumber;
     private Double amount;
     private String description;
     private LocalDateTime transactionDate;

@@ -63,4 +63,5 @@ public class Customer {
         this.createdDate = LocalDateTime.now();
         this.publicId = UUID.randomUUID();
     }
+
 }

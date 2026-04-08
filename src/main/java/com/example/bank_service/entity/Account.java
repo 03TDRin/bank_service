@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import com.example.bank_service.enums.AccountStatus;
 
 @Entity
 @Table(name = "accounts")
@@ -27,4 +28,11 @@ public class Account {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
+
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
+
+    @Column(name = "daily_limit")
+    private Double dailyLimit = 50000000.0;
+
 }
