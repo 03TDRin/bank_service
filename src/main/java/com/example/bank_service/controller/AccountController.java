@@ -67,7 +67,7 @@ public class AccountController {
         return ResponseEntity.ok("Cập nhật hạn mức thành công!");
     }
 
-    //Admin tra cứu tài khoản kèm thông tin người dùng
+    //Admin tra cứu tk kèm in4 người dùng
     @GetMapping("/search")
     public ResponseEntity<List<AccountUserSearchDTO>> searchAccounts(AccountSearchDTO dto) {
         return ResponseEntity.ok(accountService.searchAccounts(dto));
