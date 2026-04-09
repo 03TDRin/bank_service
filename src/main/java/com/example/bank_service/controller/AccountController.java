@@ -18,7 +18,7 @@ public class AccountController {
     private final AccountService accountService;
     private final AccountStatusHistoryService statusHistoryService;
 
-    //Tạo tk mới (Dành cho Admin hoặc User đăng ký thêm)
+    //Tạo tk mới
     @PostMapping("/create")
     public ResponseEntity<AccountResponseDTO> create(@Valid @RequestBody AccountCreateDTO dto) {
         return ResponseEntity.ok(accountService.createAccount(dto));
@@ -49,7 +49,7 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getAccountsByCustomer(email));
     }
 
-    //Admin cập nhật trạng thái (Khóa/Mở tài khoản)
+    //Admin cập nhật trạng thái (Khóa/Mở tk)
     @PutMapping("/{accountNumber}/status")
     public ResponseEntity<String> updateStatus(
             @PathVariable String accountNumber,

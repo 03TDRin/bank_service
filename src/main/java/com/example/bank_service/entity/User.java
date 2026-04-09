@@ -20,4 +20,9 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
 }

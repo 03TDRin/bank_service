@@ -7,12 +7,12 @@ import com.example.bank_service.enums.TransactionType;
 import com.example.bank_service.repository.AccountRepository;
 import com.example.bank_service.repository.TransactionRepository;
 import com.example.bank_service.service.TransactionService;
+import com.example.bank_service.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +23,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final AlertService alertService;
 
     @Override
     @Transactional
@@ -33,6 +34,9 @@ public class TransactionServiceImpl implements TransactionService {
         tx.setType(type);
         tx.setDescription(desc);
         transactionRepository.save(tx);
+
+        //gửi tbao có nd được soạn ở transfer money
+        alertService.sendNotification(account, desc);
     }
 
     @Override
@@ -44,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
         Account toAcc = accountRepository.findByAccountNumber(dto.getToAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Tài khoản nhận không tồn tại!"));
 
-        //Check số dư
+        //Ktra số dư
         if (fromAcc.getBalance() < dto.getAmount()) {
             throw new RuntimeException("Số dư không đủ để thực hiện giao dịch!");
         }
@@ -56,16 +60,23 @@ public class TransactionServiceImpl implements TransactionService {
         accountRepository.save(fromAcc);
         accountRepository.save(toAcc);
 
-        //Lưu lsu cho cả 2
-        recordTransaction(fromAcc, dto.getAmount(), TransactionType.TRANSFER,
-                "Chuyển tiền đến " + dto.getToAccountNumber() + ": " + dto.getDescription());
+        //Soạn nd thông báo cho người gửi
+        String msgFrom = String.format("TK %s: -%,.0fđ. GD: Chuyển tiền đến %s. ND: %s. Số dư: %,.0fđ",
+                fromAcc.getAccountNumber(), dto.getAmount(), toAcc.getAccountNumber(),
+                dto.getDescription(), fromAcc.getBalance());
 
-        recordTransaction(toAcc, dto.getAmount(), TransactionType.DEPOSIT,
-                "Nhận tiền từ " + dto.getFromAccountNumber() + ": " + dto.getDescription());
+        recordTransaction(fromAcc, dto.getAmount(), TransactionType.TRANSFER, msgFrom);
 
-        log.info("Giao dịch chuyển khoản thành công từ {} sang {}", dto.getFromAccountNumber(), dto.getToAccountNumber());
+        //Soạn cho người nhận
+        String msgTo = String.format("TK %s: +%,.0fđ. GD: Nhận tiền từ %s. ND: %s. Số dư: %,.0fđ",
+                toAcc.getAccountNumber(), dto.getAmount(), fromAcc.getAccountNumber(),
+                dto.getDescription(), toAcc.getBalance());
 
-        //Trả về kết quả
+        recordTransaction(toAcc, dto.getAmount(), TransactionType.DEPOSIT, msgTo);
+
+        log.info("Giao dịch thành công: {} -> {}", dto.getFromAccountNumber(), dto.getToAccountNumber());
+
+        //Trả về kq giao dịch mới nhất của người gửi
         return mapEntityToResponseDTO(transactionRepository.findFirstByAccountOrderByTransactionDateDesc(fromAcc));
     }
 
@@ -103,5 +114,4 @@ public class TransactionServiceImpl implements TransactionService {
 
         return dto;
     }
-
 }
