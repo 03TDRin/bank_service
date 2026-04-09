@@ -6,6 +6,7 @@ import com.example.bank_service.dto.auth.AuthRequestDTO;
 import com.example.bank_service.enums.AccountStatus;
 import com.example.bank_service.repository.AccountRepository;
 import com.example.bank_service.repository.UserRepository;
+import com.example.bank_service.security.JwtUtils;
 import com.example.bank_service.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,16 +45,18 @@ public class AuthServiceImpl implements AuthService {
         return "Đăng ký thành công! Số tài khoản của bạn là: " + newAccount.getAccountNumber();
     }
 
+    // Inject JwtUtils vào constructor
+    private final JwtUtils jwtUtils;
+
     @Override
     public String login(AuthRequestDTO dto) {
         User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new RuntimeException("Sai tên đăng nhập hoặc mật khẩu!"));
 
-        // Ktra pass
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new RuntimeException("Sai tên đăng nhập hoặc mật khẩu!");
         }
 
-        return "Đăng nhập thành công!";
+        return jwtUtils.generateToken(user.getUsername());
     }
 }
