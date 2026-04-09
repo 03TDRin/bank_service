@@ -1,5 +1,6 @@
 package com.example.bank_service.service.impl;
 
+import com.example.bank_service.dto.user.UserResponseDTO;
 import com.example.bank_service.entity.Account;
 import com.example.bank_service.entity.User;
 import com.example.bank_service.dto.auth.AuthRequestDTO;
@@ -59,4 +60,17 @@ public class AuthServiceImpl implements AuthService {
 
         return jwtUtils.generateToken(user.getUsername());
     }
+
+    @Override
+    public UserResponseDTO getMyProfile(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setUsername(user.getUsername());
+        dto.setAccountNumber(user.getAccount().getAccountNumber());
+        dto.setBalance(user.getAccount().getBalance());
+        return dto;
+    }
+
 }
