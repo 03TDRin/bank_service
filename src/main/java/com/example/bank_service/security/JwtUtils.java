@@ -10,7 +10,7 @@ import java.util.Date;
 public class JwtUtils {
     private final String SECRET_KEY = "YourSecretKeyForJWTBankingServiceProjectRinIT";
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-    private final long EXPIRATION_TIME = 86400000; // Token có hiệu lực trong 24h
+    private final long EXPIRATION_TIME = 86400000;
 
     //Tạo Token từ username
     public String generateToken(String username) {
