@@ -8,7 +8,7 @@ import java.util.List;
 @Repository
 public interface AlertRepository extends JpaRepository<Alert, Long> {
 
-    // Tìm thông báo của một tài khoản, sắp xếp cái mới nhất lên đầu
+    // Tìm thông báo 1 tk, sắp xếp cái mới nhất lên đầu
     List<Alert> findByAccount_AccountNumberOrderByCreateAtDesc(String accountNumber);
 
     // Đếm số thông báo chưa đọc

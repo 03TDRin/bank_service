@@ -4,10 +4,19 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "alerts")
 @Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
 public class Alert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +28,8 @@ public class Alert {
 
     private String message;
 
-    private boolean read = false;
+    @Column(name = "is_read")
+    private boolean isRead;
 
     @CreationTimestamp
     private LocalDateTime createAt;
