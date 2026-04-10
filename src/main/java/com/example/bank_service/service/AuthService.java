@@ -5,6 +5,6 @@ import com.example.bank_service.dto.user.UserResponseDTO;
 
 public interface AuthService {
     String register(AuthRequestDTO dto);
-    String login(AuthRequestDTO dto);
+    AuthResponseDTO login(AuthRequestDTO dto);
     UserResponseDTO getMyProfile(String username);
 }

@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "Bank Service API",
                 version = "1.0",
-                description = "Hệ thống quản lý dịch vụ ngân hàng - Dự án thực tập"
+                description = "Hệ thống quản lý dịch vụ ngân hàng"
         ),
         security = @SecurityRequirement(name = "bearerAuth") // Áp dụng bảo mật cho toàn bộ API trên giao diện Swagger
 )
