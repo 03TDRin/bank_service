@@ -37,7 +37,6 @@ public class AuthController {
             AuthResponseDTO response = authService.login(dto);
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            //Trả về 401 nếu sai pass/username
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Sai tên đăng nhập hoặc mật khẩu!");
         } catch (Exception e) {

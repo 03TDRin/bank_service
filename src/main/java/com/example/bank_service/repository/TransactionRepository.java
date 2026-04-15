@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    // Tìm tất cả giao dịch của một tài khoản và sắp xếp cái mới nhất lên đầu
+    //Tìm tất cả các giao dịch của một tk rồi sx lên đầu
     List<Transaction> findByAccountOrderByTransactionDateDesc(Account account);
 
     //Lấy giao dịch vừa thực hiện xong

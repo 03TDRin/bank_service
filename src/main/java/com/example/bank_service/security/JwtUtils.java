@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    private final String SECRET_KEY = "YourSecretKeyForJWTBankingServiceProjectRinIT";
+    private final String SECRET_KEY = "YourSecretKeyForJWTBankingServiceProjectRin";
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     private final long EXPIRATION_TIME = 86400000;
 

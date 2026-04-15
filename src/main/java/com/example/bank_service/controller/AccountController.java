@@ -1,6 +1,7 @@
 package com.example.bank_service.controller;
 
 import com.example.bank_service.dto.account.*;
+import com.example.bank_service.entity.User;
 import com.example.bank_service.service.AccountService;
 import com.example.bank_service.service.AccountStatusHistoryService;
 import jakarta.validation.Valid;
@@ -64,6 +65,7 @@ public class AccountController {
             @PathVariable String accountNumber,
             @Valid @RequestBody AccountUpdateLimitDTO dto) {
         accountService.updateLimit(accountNumber, dto);
+        User user = new User();
         return ResponseEntity.ok("Cập nhật hạn mức thành công!");
     }
 

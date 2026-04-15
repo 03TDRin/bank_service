@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
                 version = "1.0",
                 description = "Hệ thống quản lý dịch vụ ngân hàng"
         ),
-        security = @SecurityRequirement(name = "bearerAuth") // Áp dụng bảo mật cho toàn bộ API trên giao diện Swagger
+        security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
         name = "bearerAuth",

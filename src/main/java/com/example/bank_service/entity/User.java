@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements UserDetails { // Thêm cái này nè
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,11 +31,8 @@ public class User implements UserDetails { // Thêm cái này nè
     @JoinColumn(name = "account_id")
     private Account account;
 
-    // --- Bắt buộc phải có các method này của UserDetails ---
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Tạm thời set mặc định là ROLE_USER cho mọi user nhé
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 

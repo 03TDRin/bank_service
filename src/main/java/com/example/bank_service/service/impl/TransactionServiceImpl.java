@@ -101,6 +101,11 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void transfer(Account source, Account target, Double amount) {
+
+    }
+
     private TransactionResponseDTO mapEntityToResponseDTO(Transaction tx) {
         if (tx == null) return null;
 

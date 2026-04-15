@@ -14,4 +14,10 @@ public interface TransactionService {
     TransactionResponseDTO transferMoney(TransactionTransferDTO dto);
     List<TransactionResponseDTO> searchTransactions(TransactionSearchDTO dto);
 
+    // Hàm này cho người dùng dùng (có check security)
+    //void transfer(TransferRequest request);
+
+    // Hàm này cho con bot dùng (không cần SecurityContext)
+    void transfer(Account source, Account target, Double amount);
+
 }

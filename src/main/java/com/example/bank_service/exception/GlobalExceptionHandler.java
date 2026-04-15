@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
-    //Xử lý tất cả các loại lỗi khác (Lỗi hệ thống, lỗi code...)
+    //Xử lý tất cả các loại lỗi khác
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleGlobalException(Exception ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage(
