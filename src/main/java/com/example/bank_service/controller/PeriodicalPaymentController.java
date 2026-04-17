@@ -1,7 +1,7 @@
 package com.example.bank_service.controller;
 
 import com.example.bank_service.dto.period.PeriodicalPaymentResponse;
-import com.example.bank_service.dto.period.PeriodicalPaymentRequest;
+import com.example.bank_service.dto.period.PeriodicalPaymentRequestDTO;
 import com.example.bank_service.service.PeriodicalPaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +13,11 @@ import java.util.List;
 @RequestMapping("/api/periodical-payments")
 public class PeriodicalPaymentController {
     private final PeriodicalPaymentService periodicalPaymentService;
-    private PeriodicalPaymentRequest request;
+    private PeriodicalPaymentRequestDTO request;
 
     //tạo mới lệnh thanh toán định kỳ
     @PostMapping
-    public ResponseEntity<PeriodicalPaymentResponse> create(@RequestBody PeriodicalPaymentRequest periodicalPaymentRequest){
+    public ResponseEntity<PeriodicalPaymentResponse> create(@RequestBody PeriodicalPaymentRequestDTO periodicalPaymentRequest){
         return ResponseEntity.ok(periodicalPaymentService.createPayment(request));
     }
     //lấy ds thanh toán của user hiện tại

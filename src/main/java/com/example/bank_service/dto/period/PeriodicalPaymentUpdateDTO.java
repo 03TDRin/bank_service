@@ -4,9 +4,7 @@ import com.example.bank_service.enums.PaymentPeriod;
 import lombok.Data;
 
 @Data
-public class PeriodicalPaymentRequest {
-    private Long sourcrAccountId;
-    private Long targetAccountId;
+public class PeriodicalPaymentUpdateDTO {
     private Double amount;
     private PaymentPeriod period;
 }

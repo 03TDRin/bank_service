@@ -1,9 +1,10 @@
 package com.example.bank_service.service.impl;
 
-import com.example.bank_service.dto.period.PeriodicalPaymentRequest;
+import com.example.bank_service.dto.period.PeriodicalPaymentRequestDTO;
 import com.example.bank_service.dto.period.PeriodicalPaymentResponse;
+import com.example.bank_service.dto.period.PeriodicalPaymentSearchDTO;
+import com.example.bank_service.dto.period.PeriodicalPaymentUpdateDTO;
 import com.example.bank_service.entity.PeriodicalPayment;
-import com.example.bank_service.enums.PaymentPeriod;
 import com.example.bank_service.enums.SubscriptionStatus;
 import com.example.bank_service.repository.PeriodicalPaymentRepository;
 import com.example.bank_service.service.PeriodicalPaymentService;
@@ -16,17 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PeriodicalPaymentServiceImpl implements PeriodicalPaymentService {
+public abstract class PeriodicalPaymentServiceImpl implements PeriodicalPaymentService {
 
     private final PeriodicalPaymentRepository repository;
     private final TransactionService transactionService;
+    private Object mapper;
 
     @Override
-    public PeriodicalPaymentResponse createPayment(PeriodicalPaymentRequest request) {
+    public PeriodicalPaymentResponse createPayment(PeriodicalPaymentRequestDTO request) {
         PeriodicalPayment payment = new PeriodicalPayment();
         payment.setAmount(request.getAmount());
         payment.setPeriod(request.getPeriod());
@@ -34,30 +37,45 @@ public class PeriodicalPaymentServiceImpl implements PeriodicalPaymentService {
         payment.setLastProcessedDate(LocalDate.now());
 
         repository.save(payment);
-        return new PeriodicalPaymentResponse();
+
+        // Bạn nhớ mapping thêm các trường vào Response nhé
+        return PeriodicalPaymentResponse.builder()
+                .id(payment.getId())
+                .status(payment.getStatus())
+                .build();
     }
 
+    @Override
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void executeScheduledPayments() {
-        log.info("Bắt đầu xử lý các thanh toán định kỳ...");
+        log.info("Bắt đầu quy trình quét thanh toán định kỳ...");
         List<PeriodicalPayment> activePayments = repository.findByStatus(SubscriptionStatus.ACTIVE);
 
-        for (PeriodicalPayment p : activePayments) {
-            if (isDue(p)) {
+        int successCount = 0;
+        for (PeriodicalPayment payment : activePayments) {
+            if (isDue(payment)) {
                 try {
-                    transactionService.transfer(p.getSourceAccount(), p.getTargetAccount(), p.getAmount());
-                    p.setLastProcessedDate(LocalDate.now());
-                    repository.save(p);
-                    log.info("Thanh toán thành công cho lệnh ID: {}", p.getId());
+                    transactionService.transfer(
+                            payment.getSourceAccount(),
+                            payment.getTargetAccount(),
+                            payment.getAmount()
+                    );
+                    payment.setLastProcessedDate(LocalDate.now());
+                    repository.save(payment);
+                    successCount++;
+                    log.info("Thanh toán thành công ID {}: {} -> {}",
+                            payment.getId(),
+                            payment.getSourceAccount().getAccountNumber(),
+                            payment.getTargetAccount().getAccountNumber());
                 } catch (Exception e) {
-                    log.error("Lỗi khi xử lý lệnh thanh toán ID: {}. Lỗi: {}", p.getId(), e.getMessage());
+                    log.error("Lỗi khi xử lý lệnh thanh toán ID: {}. Lỗi: {}", payment.getId(), e.getMessage());
                 }
             }
         }
+        log.info("Quy trình quét hoàn tất. Đã thực hiện thành công: {} lệnh.", successCount);
     }
 
-    // Xđ xem đã đến ngày phải trả tiền chưa
     private boolean isDue(PeriodicalPayment p) {
         LocalDate lastDate = p.getLastProcessedDate();
         if (lastDate == null) return true;
@@ -70,17 +88,55 @@ public class PeriodicalPaymentServiceImpl implements PeriodicalPaymentService {
     }
 
     @Override
+    @Transactional
     public PeriodicalPaymentResponse updateStatus(Long id, String status) {
-        return null;
+        PeriodicalPayment payment = (PeriodicalPayment) repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lệnh thanh toán!"));
+
+        payment.setStatus(SubscriptionStatus.valueOf(status.toUpperCase()));
+        repository.save(payment);
+
+        return PeriodicalPaymentResponse.builder()
+                .id(payment.getId())
+                .status(payment.getStatus())
+                .build();
     }
 
     @Override
     public List<PeriodicalPaymentResponse> getMyPayments(Long customerId) {
-        return null;
+        return repository.findBySourceAccount_Customer_Id(customerId)
+                .stream()
+                .map(p -> PeriodicalPaymentResponse.builder()
+                        .id(p.getId())
+                        .sourceAccountId(p.getSourceAccount().getId())
+                        .targetAccountId(p.getTargetAccount().getId())
+                        .amount(p.getAmount())
+                        .period(p.getPeriod())
+                        .status(p.getStatus())
+                        .lastProcessedDate(p.getLastProcessedDate())
+                        .build())
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public void excuteScheduledPayment() {
+    public List<PeriodicalPaymentResponse> searchPayments(PeriodicalPaymentSearchDTO dto) {
+        return repository.findAll().stream()
+                .filter(p -> dto.getStatus() == null || p.getStatus() == dto.getStatus())
+                .filter(p -> dto.getPeriod() == null || p.getPeriod() == dto.getPeriod())
+                .filter(p -> dto.getMinAmount() == null || p.getAmount() >= dto.getMinAmount())
+                .filter(p -> dto.getMaxAmount() == null || p.getAmount() <= dto.getMaxAmount())
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
 
+    @Transactional
+    public PeriodicalPaymentResponse updatePayment(Long id, PeriodicalPaymentUpdateDTO dto) {
+        PeriodicalPayment payment = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lệnh!"));
+
+        if (dto.getAmount() != null) payment.setAmount(dto.getAmount());
+        if (dto.getPeriod() != null) payment.setPeriod(dto.getPeriod());
+
+        repository.save(payment);
+        return mapper.toResponse(payment);
     }
 }

@@ -101,9 +101,28 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void transfer(Account source, Account target, Double amount) {
+    private void performTransfer(Account fromAcc, Account toAcc, Double amount, String description){
+        fromAcc.setBalance(fromAcc.getBalance() - amount);
+        toAcc.setBalance(toAcc.getBalance() + amount);
 
+        accountRepository.save(fromAcc);
+        accountRepository.save(toAcc);
+
+        String msgFrom = String.format("Chuyển tiền đến %s. Số tiền: %,.0fđ", toAcc.getAccountNumber(), amount);
+        recordTransaction(fromAcc, amount, TransactionType.TRANSFER, msgFrom);
+        String msgTo = String.format("Nhận tiền từ %s. Số tiền: %,.0fđ", fromAcc.getAccountNumber(), amount);
+        recordTransaction(toAcc, amount, TransactionType.DEPOSIT, msgTo);
+    }
+    @Override
+    @Transactional
+    public void transfer(Account source, Account target, Double amount) {
+        if (source.getBalance() < amount) {
+            log.error("Giao dịch thất bại: Số dư tài khoản {} không đủ", source.getAccountNumber());
+            throw new RuntimeException("Số dư không đủ cho lệnh thanh toán định kỳ!");
+        }
+
+        performTransfer(source, target, amount, "Thanh toán định kỳ");
+        log.info("Bot đã thực hiện chuyển tiền thành công: {} -> {}", source.getAccountNumber(), target.getAccountNumber());
     }
 
     private TransactionResponseDTO mapEntityToResponseDTO(Transaction tx) {
