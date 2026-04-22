@@ -21,13 +21,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Customer {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, updatable = false)
-    private UUID publicId;
+    private String publicId;
 
     @Column(nullable = false)
     private String firstName;
@@ -60,8 +59,7 @@ public class Customer {
 
     @PrePersist
     public void initialiseCustomer() {
-        this.createdDate = LocalDateTime.now();
-        this.publicId = UUID.randomUUID();
+        if (this.createdDate == null) this.createdDate = LocalDateTime.now();
+        if (this.publicId == null) this.publicId = UUID.randomUUID().toString();
     }
-
 }

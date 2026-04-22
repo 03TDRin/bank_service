@@ -7,4 +7,5 @@ public class UserResponseDTO {
     private String username;
     private String accountNumber;
     private Double balance;
+    private String publicId;
 }

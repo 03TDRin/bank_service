@@ -5,7 +5,7 @@ import java.util.UUID;
 
 @Data
 public class CustomersSummaryDTO {
-    private UUID publicId;
+    private String publicId;
     private String firstName;
     private String lastName;
     private String email;

@@ -4,11 +4,15 @@ import com.example.bank_service.dto.period.PeriodicalPaymentRequestDTO;
 import com.example.bank_service.dto.period.PeriodicalPaymentResponse;
 import com.example.bank_service.dto.period.PeriodicalPaymentSearchDTO;
 import com.example.bank_service.dto.period.PeriodicalPaymentUpdateDTO;
+import com.example.bank_service.entity.Account;
 import com.example.bank_service.entity.PeriodicalPayment;
 import com.example.bank_service.enums.SubscriptionStatus;
+import com.example.bank_service.mapper.PeriodicalPaymentMapper;
+import com.example.bank_service.repository.AccountRepository;
 import com.example.bank_service.repository.PeriodicalPaymentRepository;
 import com.example.bank_service.service.PeriodicalPaymentService;
 import com.example.bank_service.service.TransactionService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,27 +26,33 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public abstract class PeriodicalPaymentServiceImpl implements PeriodicalPaymentService {
+public class PeriodicalPaymentServiceImpl implements PeriodicalPaymentService {
 
     private final PeriodicalPaymentRepository repository;
     private final TransactionService transactionService;
-    private Object mapper;
+    private final PeriodicalPaymentMapper mapper;
+    private final AccountRepository accountRepository;
 
     @Override
+    @Transactional
     public PeriodicalPaymentResponse createPayment(PeriodicalPaymentRequestDTO request) {
+        Account sourceAccount = accountRepository.findById(request.getSourceAccountId())
+                .orElseThrow(() -> new RuntimeException("Tài khoản nguồn không tồn tại"));
+
+        Account targetAccount = accountRepository.findById(request.getTargetAccountId())
+                .orElseThrow(() -> new RuntimeException("Tài khoản đích không tồn tại"));
+
         PeriodicalPayment payment = new PeriodicalPayment();
         payment.setAmount(request.getAmount());
         payment.setPeriod(request.getPeriod());
         payment.setStatus(SubscriptionStatus.ACTIVE);
         payment.setLastProcessedDate(LocalDate.now());
 
-        repository.save(payment);
+        payment.setSourceAccount(sourceAccount);
+        payment.setTargetAccount(targetAccount);
 
-        // Bạn nhớ mapping thêm các trường vào Response nhé
-        return PeriodicalPaymentResponse.builder()
-                .id(payment.getId())
-                .status(payment.getStatus())
-                .build();
+        repository.save(payment);
+        return mapper.toResponse(payment);
     }
 
     @Override
@@ -118,6 +128,7 @@ public abstract class PeriodicalPaymentServiceImpl implements PeriodicalPaymentS
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<PeriodicalPaymentResponse> searchPayments(PeriodicalPaymentSearchDTO dto) {
         return repository.findAll().stream()
                 .filter(p -> dto.getStatus() == null || p.getStatus() == dto.getStatus())
@@ -128,15 +139,14 @@ public abstract class PeriodicalPaymentServiceImpl implements PeriodicalPaymentS
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public PeriodicalPaymentResponse updatePayment(Long id, PeriodicalPaymentUpdateDTO dto) {
         PeriodicalPayment payment = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy lệnh!"));
-
         if (dto.getAmount() != null) payment.setAmount(dto.getAmount());
         if (dto.getPeriod() != null) payment.setPeriod(dto.getPeriod());
-
-        repository.save(payment);
-        return mapper.toResponse(payment);
+        return mapper.toResponse(repository.save(payment));
     }
+
 }

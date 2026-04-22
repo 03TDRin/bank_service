@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class PeriodicalPaymentRequestDTO {
-    private Long sourcrAccountId;
+    private Long sourceAccountId;
     private Long targetAccountId;
     private Double amount;
     private PaymentPeriod period;

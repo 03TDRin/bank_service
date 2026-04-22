@@ -3,10 +3,7 @@ package com.example.bank_service.entity;
 import com.example.bank_service.enums.PaymentPeriod;
 import com.example.bank_service.enums.SubscriptionStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,6 +11,7 @@ import java.time.LocalDate;
 @Table(name = "periodical_payments")
 @Getter
 @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PeriodicalPayment {

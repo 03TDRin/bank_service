@@ -7,7 +7,7 @@ import java.util.UUID;
 public interface CustomerService {
     CustomerResponseDTO register(CustomerCreateDTO dto);
     String login(String username, String password);
-    CustomerResponseDTO getProfile(UUID publicId);
-    CustomerResponseDTO updateProfile(UUID publicId, CustomerUpdateDTO dto);
+    CustomerResponseDTO getProfile(String publicId);
+    CustomerResponseDTO updateProfile(String publicId, CustomerUpdateDTO dto);
     List<CustomersSummaryDTO> getAllCustomers();
 }

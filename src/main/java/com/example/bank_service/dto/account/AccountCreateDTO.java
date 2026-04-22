@@ -6,5 +6,5 @@ import java.util.UUID;
 @Data
 public class AccountCreateDTO {
     private Double initialBalance;
-    private UUID customerPublicId;
+    private String customerPublicId;
 }

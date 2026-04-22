@@ -5,5 +5,5 @@ import java.util.UUID;
 
 @Data
 public class CustomerProfileRequest {
-    private UUID publicId;
+    private String publicId;
 }

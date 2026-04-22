@@ -8,9 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    //Tìm kiếm KH theo Public ID
-    Optional<Customer> findByPublicId(UUID publicId);
-
-    //Tìm kiếm theo Email
+    Optional<Customer> findByPublicId(String publicId);
     Optional<Customer> findByEmail(String email);
 }

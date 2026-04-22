@@ -63,7 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponseDTO getProfile(UUID publicId) {
+    public CustomerResponseDTO getProfile(String publicId) {
         Customer customer = customerRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng!"));
         return mapToResponseDTO(customer);
@@ -71,14 +71,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public CustomerResponseDTO updateProfile(UUID publicId, CustomerUpdateDTO dto) {
+    public CustomerResponseDTO updateProfile(String publicId, CustomerUpdateDTO dto) {
         Customer customer = customerRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng để cập nhật!"));
 
-        //Chỉ cập nhật những trường được phép
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setPhoneNumber(dto.getPhoneNumber());
+        customer.setEmail(dto.getEmail());
 
         Customer updatedCustomer = customerRepository.save(customer);
         return mapToResponseDTO(updatedCustomer);

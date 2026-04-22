@@ -20,14 +20,14 @@ public class CustomerController {
 
     //Lấy thông tin chi tiết hồ sơ qua Public ID
     @GetMapping("/profile/{publicId}")
-    public ResponseEntity<CustomerResponseDTO> getProfile(@PathVariable UUID publicId) {
+    public ResponseEntity<CustomerResponseDTO> getProfile(@PathVariable String publicId) {
         return ResponseEntity.ok(customerService.getProfile(publicId));
     }
 
     //Cập nhật thông tin KH
     @PutMapping("/update/{publicId}")
     public ResponseEntity<CustomerResponseDTO> updateProfile(
-            @PathVariable UUID publicId,
+            @PathVariable String publicId,
             @RequestBody CustomerUpdateDTO updateDTO) {
         return ResponseEntity.ok(customerService.updateProfile(publicId, updateDTO));
     }
