@@ -30,9 +30,9 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String publicId;
 
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+//    @OneToOne
+//    @JoinColumn(name = "account_id")
+//    private Account account;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

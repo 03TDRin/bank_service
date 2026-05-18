@@ -18,6 +18,7 @@ public class AccountStatusHistory {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
+    @Column(columnDefinition = "nvarchar(max)")
     private String reason;
 
     @CreationTimestamp
@@ -29,5 +30,4 @@ public class AccountStatusHistory {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }

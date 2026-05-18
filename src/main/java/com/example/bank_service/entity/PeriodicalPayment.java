@@ -9,9 +9,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "periodical_payments")
-@Getter
-@Setter
-@Data
+@Data // Gộp hết Getter/Setter/ToString...
 @NoArgsConstructor
 @AllArgsConstructor
 public class PeriodicalPayment {
@@ -37,4 +35,7 @@ public class PeriodicalPayment {
     @Enumerated(EnumType.STRING)
     private SubscriptionStatus status;
 
+    //lưu nội dung thanh toán
+    @Column(columnDefinition = "nvarchar(255)")
+    private String description;
 }

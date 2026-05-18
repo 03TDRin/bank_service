@@ -7,19 +7,16 @@ import com.example.bank_service.entity.Account;
 import com.example.bank_service.entity.Customer;
 import com.example.bank_service.entity.User;
 import com.example.bank_service.enums.AccountStatus;
+import com.example.bank_service.enums.CustomerType; // Thêm import này
 import com.example.bank_service.repository.AccountRepository;
-import com.example.bank_service.repository.CustomerRepository; // Nhớ thêm repo này
+import com.example.bank_service.repository.CustomerRepository;
 import com.example.bank_service.repository.UserRepository;
 import com.example.bank_service.security.JwtUtils;
 import com.example.bank_service.service.AuthService;
 import jakarta.transaction.Transactional;
-import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,34 +42,32 @@ public class AuthServiceImpl implements AuthService {
 
         String sharedPublicId = UUID.randomUUID().toString();
 
-        Account newAccount = new Account();
-        newAccount.setAccountNumber("VNB" + System.currentTimeMillis());
-        newAccount.setBalance(50000.0);
-        newAccount.setStatus(AccountStatus.ACTIVE);
-        Account savedAccount = accountRepository.save(newAccount);
-
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setAccount(savedAccount);
         user.setPublicId(sharedPublicId);
         User savedUser = userRepository.save(user);
 
         Customer customer = new Customer();
         customer.setPublicId(sharedPublicId);
         customer.setUser(savedUser);
-
         customer.setFirstName("Họ");
         customer.setLastName("Tên");
         customer.setEmail(dto.getUsername() + "@bvbank.com.vn");
         customer.setPhoneNumber("0" + (100000000 + (long)(Math.random() * 900000000L)));
-
         customer.setType(com.example.bank_service.enums.CustomerType.INDIVIDUAL);
+        Customer savedCustomer = customerRepository.save(customer);
 
-        customerRepository.save(customer);
+        Account newAccount = new Account();
+        newAccount.setAccountNumber("VNB" + System.currentTimeMillis());
+        newAccount.setBalance(50000.0);
+        newAccount.setStatus(AccountStatus.ACTIVE);
+        newAccount.setCustomer(savedCustomer);
+        Account savedAccount = accountRepository.save(newAccount);
 
         return "Đăng ký thành công! STK của bạn là: " + savedAccount.getAccountNumber();
     }
+
     @Override
     public AuthResponseDTO login(AuthRequestDTO dto) {
         authenticationManager.authenticate(
@@ -80,7 +75,6 @@ public class AuthServiceImpl implements AuthService {
         );
 
         String token = jwtUtils.generateToken(dto.getUsername());
-
         User user = userRepository.findByUsername(dto.getUsername()).orElseThrow();
 
         return AuthResponseDTO.builder()
@@ -100,10 +94,13 @@ public class AuthServiceImpl implements AuthService {
         dto.setUsername(user.getUsername());
         dto.setPublicId(user.getPublicId());
 
-        if (user.getAccount() != null) {
-            dto.setAccountNumber(user.getAccount().getAccountNumber());
-            dto.setBalance(user.getAccount().getBalance());
-        }
+        customerRepository.findByUser(user).ifPresent(customer -> {
+            if (customer.getAccounts() != null && !customer.getAccounts().isEmpty()) {
+                Account acc = customer.getAccounts().get(0);
+                dto.setAccountNumber(acc.getAccountNumber());
+                dto.setBalance(acc.getBalance());
+            }
+        });
 
         return dto;
     }

@@ -28,10 +28,10 @@ public class Customer {
     @Column(nullable = false, unique = true, updatable = false)
     private String publicId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "nvarchar(255)")
     private String firstName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "nvarchar(255)")
     private String lastName;
 
     @Column(nullable = false, unique = true)

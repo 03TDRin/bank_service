@@ -11,6 +11,7 @@ import com.example.bank_service.repository.CustomerRepository;
 import com.example.bank_service.service.AccountStatusHistoryService;
 import com.example.bank_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +45,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (dto.getInitialBalance() > 0) {
             transactionService.recordTransaction(saved, dto.getInitialBalance(),
-                    TransactionType.DEPOSIT, "Số dư khởi tạo tài khoản");
+                    TransactionType.DEPOSIT, "Số dư khởi tạo tài khoản", null);
         }
         return mapToResponseDTO(saved);
     }
@@ -61,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
 
         account.setBalance(account.getBalance() + amount);
         Account saved = accountRepository.save(account);
-        transactionService.recordTransaction(saved, amount, TransactionType.DEPOSIT, "Nạp tiền vào tài khoản");
+        transactionService.recordTransaction(saved, amount, TransactionType.DEPOSIT, "Nạp tiền vào tài khoản", null);
         return mapToResponseDTO(saved);
     }
 
@@ -87,8 +88,10 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(from);
         accountRepository.save(to);
 
-        transactionService.recordTransaction(from, amount, TransactionType.TRANSFER, "Chuyển tiền tới " + toAccount);
-        transactionService.recordTransaction(to, amount, TransactionType.DEPOSIT, "Nhận tiền từ " + fromAccount);
+        transactionService.recordTransaction(from, amount, TransactionType.TRANSFER,
+                "Chuyển tiền tới " + toAccount, toAccount);
+        transactionService.recordTransaction(to, amount, TransactionType.DEPOSIT,
+                "Nhận tiền từ " + fromAccount, fromAccount);
     }
 
     @Override
@@ -134,17 +137,28 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountUserSearchDTO> searchAccounts(AccountSearchDTO dto) {
-        return List.of();
+        return accountRepository.searchAccounts(
+                        dto.getAccountNumber(),
+                        dto.getKeyword(),
+                        Pageable.unpaged()
+                ).getContent()
+                .stream()
+                .map(this::mapToUserSearchDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<AccountUserSearchDTO> searchAccounts(String keyword) {
-        return accountRepository.findAll().stream()
-                .filter(a -> (a.getAccountNumber() != null && a.getAccountNumber().contains(keyword)) ||
-                        (a.getCustomer() != null && a.getCustomer().getEmail() != null && a.getCustomer().getEmail().contains(keyword)))
+        return accountRepository.searchAccounts(
+                        keyword,
+                        keyword,
+                        Pageable.unpaged()
+                ).getContent()
+                .stream()
                 .map(this::mapToUserSearchDTO)
                 .collect(Collectors.toList());
     }
+
 
     private AccountUserSearchDTO mapToUserSearchDTO(Account account) {
         AccountUserSearchDTO dto = new AccountUserSearchDTO();

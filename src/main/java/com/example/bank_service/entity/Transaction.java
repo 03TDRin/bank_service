@@ -23,7 +23,11 @@ public class Transaction {
 
     private Double amount;
 
+    @Column(name = "description", columnDefinition = "nvarchar(max)")
     private String description;
+
+    @Column(name = "receiver_number")
+    private String receiverNumber;
 
     @CreationTimestamp
     private LocalDateTime transactionDate;

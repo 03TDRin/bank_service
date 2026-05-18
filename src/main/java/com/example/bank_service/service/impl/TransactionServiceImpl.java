@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,56 +28,49 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public void recordTransaction(Account account, Double amount, TransactionType type, String desc) {
+    public void recordTransaction(Account account, Double amount, TransactionType type, String desc, String receiverNumber) {
         Transaction tx = new Transaction();
         tx.setAccount(account);
         tx.setAmount(amount);
         tx.setType(type);
         tx.setDescription(desc);
-        transactionRepository.save(tx);
+        tx.setReceiverNumber(receiverNumber);
+        tx.setTransactionDate(LocalDateTime.now());
 
-        //gửi tbao có nd được soạn ở transfer money
+        transactionRepository.save(tx);
         alertService.sendNotification(account, desc);
     }
 
     @Override
     @Transactional
     public TransactionResponseDTO transferMoney(TransactionTransferDTO dto) {
-        //Tìm tk
         Account fromAcc = accountRepository.findByAccountNumber(dto.getFromAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Tài khoản gửi không tồn tại!"));
         Account toAcc = accountRepository.findByAccountNumber(dto.getToAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Tài khoản nhận không tồn tại!"));
 
-        //Ktra số dư
         if (fromAcc.getBalance() < dto.getAmount()) {
             throw new RuntimeException("Số dư không đủ để thực hiện giao dịch!");
         }
 
-        //Trừ tiền bên gửi, cộng tiền bên nhận
         fromAcc.setBalance(fromAcc.getBalance() - dto.getAmount());
         toAcc.setBalance(toAcc.getBalance() + dto.getAmount());
 
         accountRepository.save(fromAcc);
         accountRepository.save(toAcc);
 
-        //Soạn nd thông báo cho người gửi
         String msgFrom = String.format("TK %s: -%,.0fđ. GD: Chuyển tiền đến %s. ND: %s. Số dư: %,.0fđ",
                 fromAcc.getAccountNumber(), dto.getAmount(), toAcc.getAccountNumber(),
                 dto.getDescription(), fromAcc.getBalance());
+        recordTransaction(fromAcc, dto.getAmount(), TransactionType.TRANSFER, msgFrom, toAcc.getAccountNumber());
 
-        recordTransaction(fromAcc, dto.getAmount(), TransactionType.TRANSFER, msgFrom);
-
-        //Soạn cho người nhận
         String msgTo = String.format("TK %s: +%,.0fđ. GD: Nhận tiền từ %s. ND: %s. Số dư: %,.0fđ",
                 toAcc.getAccountNumber(), dto.getAmount(), fromAcc.getAccountNumber(),
                 dto.getDescription(), toAcc.getBalance());
-
-        recordTransaction(toAcc, dto.getAmount(), TransactionType.DEPOSIT, msgTo);
+        recordTransaction(toAcc, dto.getAmount(), TransactionType.DEPOSIT, msgTo, fromAcc.getAccountNumber());
 
         log.info("Giao dịch thành công: {} -> {}", dto.getFromAccountNumber(), dto.getToAccountNumber());
 
-        //Trả về kq giao dịch mới nhất của người gửi
         return mapEntityToResponseDTO(transactionRepository.findFirstByAccountOrderByTransactionDateDesc(fromAcc));
     }
 
@@ -101,18 +95,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
-    private void performTransfer(Account fromAcc, Account toAcc, Double amount, String description){
-        fromAcc.setBalance(fromAcc.getBalance() - amount);
-        toAcc.setBalance(toAcc.getBalance() + amount);
-
-        accountRepository.save(fromAcc);
-        accountRepository.save(toAcc);
-
-        String msgFrom = String.format("Chuyển tiền đến %s. Số tiền: %,.0fđ", toAcc.getAccountNumber(), amount);
-        recordTransaction(fromAcc, amount, TransactionType.TRANSFER, msgFrom);
-        String msgTo = String.format("Nhận tiền từ %s. Số tiền: %,.0fđ", fromAcc.getAccountNumber(), amount);
-        recordTransaction(toAcc, amount, TransactionType.DEPOSIT, msgTo);
-    }
     @Override
     @Transactional
     public void transfer(Account source, Account target, Double amount) {
@@ -121,7 +103,18 @@ public class TransactionServiceImpl implements TransactionService {
             throw new RuntimeException("Số dư không đủ cho lệnh thanh toán định kỳ!");
         }
 
-        performTransfer(source, target, amount, "Thanh toán định kỳ");
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
+
+        accountRepository.save(source);
+        accountRepository.save(target);
+
+        String msgFrom = String.format("Thanh toán định kỳ đến %s. Số tiền: %,.0fđ", target.getAccountNumber(), amount);
+        recordTransaction(source, amount, TransactionType.TRANSFER, msgFrom, target.getAccountNumber());
+
+        String msgTo = String.format("Nhận thanh toán định kỳ từ %s. Số tiền: %,.0fđ", source.getAccountNumber(), amount);
+        recordTransaction(target, amount, TransactionType.DEPOSIT, msgTo, source.getAccountNumber());
+
         log.info("Bot đã thực hiện chuyển tiền thành công: {} -> {}", source.getAccountNumber(), target.getAccountNumber());
     }
 
@@ -135,6 +128,7 @@ public class TransactionServiceImpl implements TransactionService {
         dto.setAmount(tx.getAmount());
         dto.setDescription(tx.getDescription());
         dto.setTransactionDate(tx.getTransactionDate());
+        dto.setReceiverNumber(tx.getReceiverNumber()); // Đừng quên map cái này ra DTO nhé bà!
 
         return dto;
     }
