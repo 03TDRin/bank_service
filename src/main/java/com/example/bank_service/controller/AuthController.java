@@ -25,7 +25,7 @@ public class AuthController {
         try {
             return ResponseEntity.ok(authService.register(dto));
         } catch (RuntimeException e) {
-            //Trả về lỗi 400 nếu tên đăng nhập đã tồn tại
+            //Lỗi 400 nếu tên ddanhap đã tồn tại
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
