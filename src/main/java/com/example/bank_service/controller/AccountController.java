@@ -75,10 +75,4 @@ public class AccountController {
         return ResponseEntity.ok(accountService.searchAccounts(dto));
     }
 
-    @GetMapping("/{accountNumber}/status-history")
-    public ResponseEntity<List<AccountStatusHistoryDTO>> getStatusHistory(
-            @PathVariable String accountNumber) {
-        return ResponseEntity.ok(statusHistoryService.getByAccountNumber(accountNumber));
-    }
-
 }
