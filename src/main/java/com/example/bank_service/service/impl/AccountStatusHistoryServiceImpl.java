@@ -25,7 +25,7 @@ public class AccountStatusHistoryServiceImpl
 
     private final AccountStatusHistoryRepository repository;
 
-    //Admin tìm kiếm lịch sử trạng thái tài khoản
+    //Admin search ls trạng thái tk
     @Override
     public List<AccountStatusHistoryResponseDTO>
     search(AccountStatusHistorySearchDTO request) {
@@ -44,7 +44,7 @@ public class AccountStatusHistoryServiceImpl
                 .toList();
     }
 
-    //User tìm kiếm lịch sử trạng thái
+    //User search ls trạng thái
     @Override
     public List<AccountStatusHistoryResponseDTO>
     userSearch(AccountStatusHistoryUserSearchDTO request) {
@@ -62,7 +62,7 @@ public class AccountStatusHistoryServiceImpl
                 .toList();
     }
 
-    //Lưu lịch sử khi thay đổi trạng thái tài khoản
+    //Lưu ls khi thay đổi trạng thái tk
     @Override
     public void logStatusChange(
             Account account,
@@ -82,7 +82,7 @@ public class AccountStatusHistoryServiceImpl
         repository.save(history);
     }
 
-    //Lấy toàn bộ lịch sử trạng thái tài khoản
+    //Lấy toàn bộ ls trạng thái tk
     @Override
     public List<AccountStatusHistoryResponseDTO>
     getAll() {
@@ -93,7 +93,7 @@ public class AccountStatusHistoryServiceImpl
                 .toList();
     }
 
-    //Lấy lịch sử theo account number
+    //Lấy ls theo account number
     @Override
     public List<AccountStatusHistoryResponseDTO>
     getByAccountNumber(String accountNumber) {
@@ -123,4 +123,5 @@ public class AccountStatusHistoryServiceImpl
                 .dateTime(history.getChangedAt())
                 .build();
     }
+
 }
